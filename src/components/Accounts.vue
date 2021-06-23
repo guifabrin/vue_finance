@@ -4,7 +4,6 @@
       <a
         class="nav-link"
         :class="actual.year == year ? 'active' : ''"
-        href="#"
         aria-current="page"
         v-on:click="actual.year = year"
         >{{ year }}</a
@@ -12,7 +11,7 @@
     </li>
   </ul>
   <div class="table-responsive">
-    <table class="table table-sm table-bordered table-striped">
+    <table class="table table-sm table-bordered table-striped table-light">
       <thead>
         <tr>
           <th>{{ $t("common.description") }}</th>
@@ -32,15 +31,22 @@
       <tbody>
         <tr v-for="account in accounts" :key="account.id">
           <th>
-            {{ account.description }}
-            <button class="btn btn-warning btn-iframe" href="#">
+            {{ account.description }}<br />
+            <button
+              class="btn btn-primary"
+              v-if="account.automated"
+              v-on:click="syncAccount(account, $event)"
+            >
+              <i class="fa fa-sync"></i>
+            </button>
+            <!-- <button class="btn btn-warning">
               <i class="fa fa-edit"></i>
             </button>
             <button class="btn btn-danger"><i class="fa fa-trash"></i></button>
             <button class="btn btn-info"><i class="fa fa-upload"></i></button>
-            <a class="btn btn-secondary" href="#" v-if="account.is_credit_card">
+            <a class="btn btn-secondary" v-if="account.is_credit_card">
               <i class="fas fa-receipt"></i>
-            </a>
+            </a> -->
           </th>
           <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-confusing-v-for-v-if -->
           <td
@@ -54,14 +60,12 @@
           >
             <button
               class="btn btn-link"
-              href="#"
               v-if="account.is_credit_card"
               v-for="invoice in account.getInvoicesAt(actual.year, month)"
               :key="invoice.id"
               v-on:click="viewTransactionsAtInvoice(invoice)"
             >
-              <div>
-                {{$n(invoice.value, 'currency')}}
+              <div v-html="formatMoney(invoice.value)">
               </div>
             </button>
             <button
@@ -72,8 +76,7 @@
               "
               v-on:click="viewTransactionsAt(account, actual.year, month)"
             >
-              <div class="paid">
-                {{ $n(account.getPaidAt(actual.year, month), "currency") }}
+              <div class="paid" v-html="formatMoney(account.getPaidAt(actual.year, month))">
               </div>
               <div
                 class="non"
@@ -81,8 +84,8 @@
                   account.getTransactionsAt(actual.year, month).length &&
                     account.getNonPaidAt(actual.year, month) != 0
                 "
+                v-html="formatMoney(account.getNonPaidAt(actual.year, month))"
               >
-                {{ $n(account.getNonPaidAt(actual.year, month), "currency") }}
               </div>
               <div
                 class="sum"
@@ -90,8 +93,7 @@
                   account.getSumAt(actual.year, month) !=
                     account.getPaidAt(actual.year, month)
                 "
-              >
-                {{ $n(account.getSumAt(actual.year, month), "currency") }}
+               v-html="formatMoney(account.getSumAt(actual.year, month))">
               </div>
             </button>
           </td>
@@ -109,8 +111,8 @@
             class="text-right"
             v-for="month in months"
             :key="month"
+            v-html="formatMoney(sumPaid(month))"
           >
-            {{ $n(sumPaid(month), 'currency') }}
           </th>
         </tr>
         <tr>
@@ -124,8 +126,8 @@
             class="text-right"
             v-for="month in months"
             :key="month"
+            v-html="formatMoney(sumNonPaid(month))"
           >
-            {{ $n(sumNonPaid(month), 'currency') }}
           </th>
         </tr>
         <tr>
@@ -139,8 +141,8 @@
             class="text-right"
             v-for="month in months"
             :key="month"
+            v-html="formatMoney(sumNonPaid(month) + sumPaid(month))"
           >
-            {{ $n(sumNonPaid(month) + sumPaid(month), 'currency') }}
           </th>
         </tr>
       </tfoot>
@@ -159,43 +161,52 @@
         <div class="modal-header">
           <button
             type="button"
-            class="close"
+            class="btn btn-danger"
             data-dismiss="modal"
             aria-label="Close"
+            v-on:click="closeModal($modal)"
           >
             <span aria-hidden="true">&times;</span>
           </button>
-          <h4 class="modal-title" id="transactionsModalLabel">New message</h4>
+          <h4 class="modal-title" id="transactionsModalLabel">
+            {{ modaltitle }}
+          </h4>
         </div>
         <div class="modal-body">
-          <table class="table table-sm table-bordered table-striped">
+          <table
+            class="table table-sm table-bordered table-striped table-light"
+          >
             <thead>
               <th>{{ $t("common.date") }}</th>
               <th>{{ $t("common.description") }}</th>
               <th>{{ $t("transactions.value") }}</th>
               <th>{{ $t("transactions.paid") }}</th>
+              <th>{{ $t("common.actions") }}</th>
             </thead>
             <tbody>
               <tr v-for="transaction in transactions" :key="transaction.id">
                 <td>{{ $d(transaction.date, "short") }}</td>
                 <td>{{ transaction.description }}</td>
-                <td>{{ $n(transaction.value, "currency") }}</td>
+                <td v-html="formatMoney(transaction.value)"></td>
                 <td>
                   <input
                     type="checkbox"
                     :checked="transaction.paid || transaction.invoice"
                     :disabled="transaction.invoice != null"
+                    v-on:click="payTransaction(transaction, $event)"
                   />
+                </td>
+                <td>
+                  <button
+                    class="btn btn-danger"
+                    v-on:click="deleteTransaction(transaction)"
+                  >
+                    <i class="fa fa-trash"></i>
+                  </button>
                 </td>
               </tr>
             </tbody>
           </table>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">
-            Close
-          </button>
-          <button type="button" class="btn btn-primary">Send message</button>
         </div>
       </div>
     </div>
@@ -208,10 +219,12 @@ export default {
   name: "Accounts",
   props: {
     accounts: [],
+    headers: null,
   },
   data: () => {
     return {
       transactions: [],
+      modaltitle: "",
       months: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
       actual: {
         year: new Date().getUTCFullYear(),
@@ -220,9 +233,16 @@ export default {
       now: {
         year: new Date().getUTCFullYear(),
       },
+      $modal: null,
     };
   },
+  mounted() {
+    this.$modal = new Modal(document.getElementById("transactionsModal"));
+  },
   methods: {
+    closeModal($modal) {
+      $modal.hide();
+    },
     years() {
       const years = [];
       const yearDiff = this.now.year - this.actual.year;
@@ -242,25 +262,119 @@ export default {
     },
     sumPaid(month) {
       return this.accounts
-          .map((account) => account.getPaidAt(this.actual.year, month))
-          .reduce((a, b) => a + b, 0)
-      ;
+        .map((account) => account.getPaidAt(this.actual.year, month))
+        .reduce((a, b) => a + b, 0);
     },
     sumNonPaid(month) {
-      
-      return         this.accounts
-          .map((account) => account.getNonPaidAt(this.actual.year, month))
-          .reduce((a, b) => a + b, 0)
-      ;
+      return this.accounts
+        .map((account) => account.getNonPaidAt(this.actual.year, month))
+        .reduce((a, b) => a + b, 0);
     },
     viewTransactionsAt(account, year, month) {
-      this.transactions = account.getTransactionsAt(year, month);
-      new Modal(document.getElementById("transactionsModal")).show();
+      this.$modal.hide();
+      this.oldAccount = account.id;
+      this.oldYear = year;
+      this.oldMonth = month;
+      this.oldInvoice = null;
+      this.transactions = account
+        .getTransactionsAt(year, month)
+        .sort(function(a, b) {
+          return a.date - b.date;
+        });
+      this.modaltitle = account.description + " " + month + "/" + year;
+      this.$modal.show();
     },
     viewTransactionsAtInvoice(invoice) {
+      this.$modal.hide();
+      this.oldYear = null;
+      this.oldMonth = null;
+      this.oldInvoice = invoice.id;
+      this.oldAccount = invoice.account.id;
       this.transactions = invoice.transactions;
-      new Modal(document.getElementById("transactionsModal")).show();
+      this.$modal.show();
+      this.modaltitle =
+        invoice.description +
+        " " +
+        invoice.debit_date.getUTCMonth() +
+        "/" +
+        invoice.debit_date.getUTCFullYear();
     },
+    deleteTransaction(transaction) {
+      if (!confirm("Tem certeza?")) {
+        return;
+      }
+      const self = this;
+      fetch("http://localhost:8888/api/v1/transactions/" + transaction.id, {
+        method: "DELETE",
+        headers: this.headers,
+        mode: "cors",
+      })
+        .then((response) => response.json())
+        .then(() => {
+          self.$parent.login();
+          if (self.oldInvoice) {
+            self.viewTransactionsAt(
+              self.accounts
+                .filter((acc) => acc.id == self.oldAccount)[0]
+                .invoices.filter((inv) => inv.id == self.oldInvoice)[0]
+            );
+          } else {
+            self.viewTransactionsAt(
+              self.accounts.filter((acc) => acc.id == self.oldAccount)[0],
+              self.oldYear,
+              self.oldMonth
+            );
+          }
+        })
+        .catch((ex) => {
+          console.log("error", ex);
+        });
+    },
+    payTransaction(transaction, $event) {
+      const self = this;
+      fetch("http://localhost:8888/api/v1/transactions/" + transaction.id, {
+        method: "PUT",
+        headers: this.headers,
+        mode: "cors",
+        body: JSON.stringify({ paid: $event.target.checked }),
+      })
+        .then((response) => response.json())
+        .then(() => {
+          self.$parent.login();
+        })
+        .catch((ex) => {
+          console.log("error", ex);
+        });
+    },
+    syncAccount(account, $event) {
+      const self = this;
+      let isafe ='';
+      if (account.automated_body){
+        isafe = prompt("isafe")
+        if (isafe.length!=6){
+          return;
+        }
+      }
+      $event.target.classList.add("spin");
+      fetch("http://localhost:8888/api/v1/automated/" + account.id, {
+        method: "POST",
+        headers: this.headers,
+        mode: "cors",
+        body: isafe,
+      })
+        .then(() => {
+          self.$parent.login();
+          $event.target.classList.remove("spin");
+        })
+        .catch((ex) => {
+          console.log("error", ex);
+        });
+    },
+    formatMoney(value){
+      const strValue = this.$n(value, 'currency')
+      const classe = value< 0?'negative': 'positive'
+      return '<font class="'+classe+'">'+strValue+'</font>'
+    }
   },
 };
 </script>
@@ -285,5 +399,25 @@ table.table td .btn,
 table.table th .btn {
   padding: 1px 6px;
   float: right;
+}
+button.spin i,
+i.spin {
+  animation-name: spin;
+  animation-duration: 5000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  /* transform: rotate(3deg); */
+  /* transform: rotate(0.3rad);/ */
+  /* transform: rotate(3grad); */
+  /* transform: rotate(.03turn);  */
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

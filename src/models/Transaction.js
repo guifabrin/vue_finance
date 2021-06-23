@@ -5,7 +5,10 @@ export default class Transaction {
         for (const key in objJson) {
             switch (key) {
                 case 'date':
-                    this[key] = new Date(objJson[key]);
+                    {
+                    const [yyyy, mm, dd] = objJson[key].split('-')
+                    this[key] = new Date(yyyy, mm - 1, dd)
+                    }
                     break;
                 default:
                     this[key] = objJson[key];

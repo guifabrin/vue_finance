@@ -6,7 +6,10 @@ export default class Invoice {
         for (const key in objJson) {
             switch (key) {
                 case 'debit_date':
-                    this[key] = new Date(objJson[key]);
+                    {
+                        const [yyyy, mm, dd] = objJson[key].split('-')
+                        this[key] = new Date(yyyy, mm - 1, dd)
+                    }
                     break;
                 case 'transactions':
                     for (const objTransaction of objJson['transactions'])
@@ -20,6 +23,8 @@ export default class Invoice {
     }
 
     get value() {
-        return this.transactions.map(item => item.value).reduce((a, b) => a + b, 0);
+        const invoices = this.account.invoices.sort((invoice, invoice1) => invoice1.debit_date-invoice.debit_date).filter(invoice => invoice.debit_date < this.debit_date)
+        const ii = invoices[0]
+        return this.transactions.map(item => item.value).reduce((a, b) => a + b, 0) + (ii?ii.value:0);
     }
 }
