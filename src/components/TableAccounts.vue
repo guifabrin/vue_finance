@@ -67,7 +67,7 @@
               class="btn btn-link"
               v-if="
                 !account.is_credit_card &&
-                  account.getTransactionsAt(actual.year, month).length
+                  account.getTransactionsBefore(actual.year, month).length
               "
               v-on:click="viewTransactionsAt(account, actual.year, month)"
             >
@@ -78,7 +78,7 @@
               <div
                 class="non"
                 v-if="
-                  account.getTransactionsAt(actual.year, month).length &&
+                  account.getTransactionsBefore(actual.year, month).length &&
                     account.getNonPaidAt(actual.year, month) != 0
                 "
                 v-html="formatMoney(account.getNonPaidAt(actual.year, month))"

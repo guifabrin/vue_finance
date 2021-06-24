@@ -57,4 +57,8 @@ export default class Account {
         const { dateInit, dateEnd } = Helpers.getPeriod(year, month);
         return this.transactions.filter(transaction => transaction.date >= dateInit && transaction.date < dateEnd);
     }
+    getTransactionsBefore(year, month) {
+        const { dateEnd } = Helpers.getPeriod(year, month);
+        return this.transactions.filter(transaction => transaction.date < dateEnd);
+    }
 }

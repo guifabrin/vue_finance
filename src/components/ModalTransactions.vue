@@ -94,13 +94,15 @@ export default {
           self.$parent.$parent.login();
           if (self.oldInvoice) {
             self.$parent.viewTransactionsAt(
-              self.accounts
+              self.$parent.accounts
                 .filter((acc) => acc.id == self.oldAccount)[0]
                 .invoices.filter((inv) => inv.id == self.oldInvoice)[0]
             );
           } else {
             self.$parent.viewTransactionsAt(
-              self.accounts.filter((acc) => acc.id == self.oldAccount)[0],
+              self.$parent.accounts.filter(
+                (acc) => acc.id == self.oldAccount
+              )[0],
               self.oldYear,
               self.oldMonth
             );
