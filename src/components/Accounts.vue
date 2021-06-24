@@ -1,5 +1,5 @@
 <template>
-  <ListYears/>
+  <ListYears />
   <div class="table-responsive">
     <table class="table table-sm table-bordered table-striped table-light">
       <thead>
@@ -55,8 +55,7 @@
               :key="invoice.id"
               v-on:click="viewTransactionsAtInvoice(invoice)"
             >
-              <div v-html="formatMoney(invoice.value)">
-              </div>
+              <div v-html="formatMoney(invoice.value)"></div>
             </button>
             <button
               class="btn btn-link"
@@ -66,8 +65,10 @@
               "
               v-on:click="viewTransactionsAt(account, actual.year, month)"
             >
-              <div class="paid" v-html="formatMoney(account.getPaidAt(actual.year, month))">
-              </div>
+              <div
+                class="paid"
+                v-html="formatMoney(account.getPaidAt(actual.year, month))"
+              ></div>
               <div
                 class="non"
                 v-if="
@@ -75,16 +76,15 @@
                     account.getNonPaidAt(actual.year, month) != 0
                 "
                 v-html="formatMoney(account.getNonPaidAt(actual.year, month))"
-              >
-              </div>
+              ></div>
               <div
                 class="sum"
                 v-if="
                   account.getSumAt(actual.year, month) !=
                     account.getPaidAt(actual.year, month)
                 "
-               v-html="formatMoney(account.getSumAt(actual.year, month))">
-              </div>
+                v-html="formatMoney(account.getSumAt(actual.year, month))"
+              ></div>
             </button>
           </td>
         </tr>
@@ -102,8 +102,7 @@
             v-for="month in months"
             :key="month"
             v-html="formatMoney(sumPaid(month))"
-          >
-          </th>
+          ></th>
         </tr>
         <tr>
           <th>{{ $t("accounts.totals_not_paid") }}:</th>
@@ -117,8 +116,7 @@
             v-for="month in months"
             :key="month"
             v-html="formatMoney(sumNonPaid(month))"
-          >
-          </th>
+          ></th>
         </tr>
         <tr>
           <th>{{ $t("accounts.totals") }}:</th>
@@ -132,84 +130,23 @@
             v-for="month in months"
             :key="month"
             v-html="formatMoney(sumNonPaid(month) + sumPaid(month))"
-          >
-          </th>
+          ></th>
         </tr>
       </tfoot>
     </table>
   </div>
-
-  <div
-    class="modal fade"
-    id="transactionsModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="transactionsModalLabel"
-  >
-    <div class="modal-dialog modal-xl" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button
-            type="button"
-            class="btn btn-danger"
-            data-dismiss="modal"
-            aria-label="Close"
-            v-on:click="closeModal($modal)"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title" id="transactionsModalLabel">
-            {{ modaltitle }}
-          </h4>
-        </div>
-        <div class="modal-body">
-          <table
-            class="table table-sm table-bordered table-striped table-light"
-          >
-            <thead>
-              <th>{{ $t("common.date") }}</th>
-              <th>{{ $t("common.description") }}</th>
-              <th>{{ $t("transactions.value") }}</th>
-              <th>{{ $t("transactions.paid") }}</th>
-              <th>{{ $t("common.actions") }}</th>
-            </thead>
-            <tbody>
-              <tr v-for="transaction in transactions" :key="transaction.id">
-                <td>{{ $d(transaction.date, "short") }}</td>
-                <td>{{ transaction.description }}</td>
-                <td v-html="formatMoney(transaction.value)"></td>
-                <td>
-                  <input
-                    type="checkbox"
-                    :checked="transaction.paid || transaction.invoice"
-                    :disabled="transaction.invoice != null"
-                    v-on:click="payTransaction(transaction, $event)"
-                  />
-                </td>
-                <td>
-                  <button
-                    class="btn btn-danger"
-                    v-on:click="deleteTransaction(transaction)"
-                  >
-                    <i class="fa fa-trash"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+  <ModalTransactions />
 </template>
 
 <script>
 import { Modal } from "bootstrap";
-import ListYears from './ListYears.vue'
+import ListYears from "./ListYears.vue";
+import ModalTransactions from "./ModalTransactions.vue";
 export default {
   name: "Accounts",
-  components:{
-    ListYears
+  components: {
+    ListYears,
+    ModalTransactions,
   },
   props: {
     accounts: [],
@@ -234,9 +171,6 @@ export default {
     this.$modal = new Modal(document.getElementById("transactionsModal"));
   },
   methods: {
-    closeModal($modal) {
-      $modal.hide();
-    },
     sumPaid(month) {
       return this.accounts
         .map((account) => account.getPaidAt(this.actual.year, month))
@@ -276,59 +210,12 @@ export default {
         "/" +
         invoice.debit_date.getUTCFullYear();
     },
-    deleteTransaction(transaction) {
-      if (!confirm("Tem certeza?")) {
-        return;
-      }
-      const self = this;
-      fetch("http://localhost:8888/api/v1/transactions/" + transaction.id, {
-        method: "DELETE",
-        headers: this.headers,
-        mode: "cors",
-      })
-        .then((response) => response.json())
-        .then(() => {
-          self.$parent.login();
-          if (self.oldInvoice) {
-            self.viewTransactionsAt(
-              self.accounts
-                .filter((acc) => acc.id == self.oldAccount)[0]
-                .invoices.filter((inv) => inv.id == self.oldInvoice)[0]
-            );
-          } else {
-            self.viewTransactionsAt(
-              self.accounts.filter((acc) => acc.id == self.oldAccount)[0],
-              self.oldYear,
-              self.oldMonth
-            );
-          }
-        })
-        .catch((ex) => {
-          console.log("error", ex);
-        });
-    },
-    payTransaction(transaction, $event) {
-      const self = this;
-      fetch("http://localhost:8888/api/v1/transactions/" + transaction.id, {
-        method: "PUT",
-        headers: this.headers,
-        mode: "cors",
-        body: JSON.stringify({ paid: $event.target.checked }),
-      })
-        .then((response) => response.json())
-        .then(() => {
-          self.$parent.login();
-        })
-        .catch((ex) => {
-          console.log("error", ex);
-        });
-    },
     syncAccount(account, $event) {
       const self = this;
-      let isafe ='';
-      if (account.automated_body){
-        isafe = prompt("isafe")
-        if (isafe.length!=6){
+      let isafe = "";
+      if (account.automated_body) {
+        isafe = prompt("isafe");
+        if (isafe.length != 6) {
           return;
         }
       }
@@ -347,11 +234,11 @@ export default {
           console.log("error", ex);
         });
     },
-    formatMoney(value){
-      const strValue = this.$n(value, 'currency')
-      const classe = value< 0?'negative': 'positive'
-      return '<font class="'+classe+'">'+strValue+'</font>'
-    }
+    formatMoney(value) {
+      const strValue = this.$n(value, "currency");
+      const classe = value < 0 ? "negative" : "positive";
+      return '<font class="' + classe + '">' + strValue + "</font>";
+    },
   },
 };
 </script>
