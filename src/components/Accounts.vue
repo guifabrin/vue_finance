@@ -45,13 +45,15 @@ export default {
       now: {
         year: new Date().getUTCFullYear(),
       },
-      $modal: null,
+      $transactionsModal: null,
       $accountModal: null,
       $transactionModal: null,
     };
   },
   mounted() {
-    this.$modal = new Modal(document.getElementById("transactionsModal"));
+    this.$transactionsModal = new Modal(
+      document.getElementById("transactionsModal")
+    );
     this.$accountModal = new Modal(document.getElementById("accountsModal"));
     this.$transactionModal = new Modal(
       document.getElementById("transactionModal")
@@ -68,7 +70,7 @@ export default {
       this.$accountModal.show();
     },
     addTransaction(account, transaction) {
-      this.$options.components.ModalTransaction.acctransaction(
+      this.$options.components.ModalTransaction.setTransaction(
         account,
         transaction
       );

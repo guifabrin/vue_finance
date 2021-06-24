@@ -157,9 +157,6 @@ export default {
     actual() {
       return this.$parent.actual;
     },
-    $modal() {
-      return this.$parent.$modal;
-    },
   },
   data() {
     return {
@@ -181,7 +178,7 @@ export default {
         .reduce((a, b) => a + b, 0);
     },
     viewTransactionsAt(account, year, month) {
-      this.$modal.hide();
+      this.$parent.$transactionsModal.hide();
       this.oldAccount = account.id;
       this.oldYear = year;
       this.oldMonth = month;
@@ -193,10 +190,10 @@ export default {
           return a.date - b.date;
         });
       this.$parent.modaltitle = account.description + " " + month + "/" + year;
-      this.$modal.show();
+      this.$parent.$transactionsModal.show();
     },
     viewTransactionsAtInvoice(invoice) {
-      this.$modal.hide();
+      this.$parent.$transactionsModal.hide();
       this.oldYear = null;
       this.oldMonth = null;
       this.oldInvoice = invoice.id;
@@ -204,7 +201,7 @@ export default {
       this.$parent.account = invoice.account;
       this.$parent.invoice = invoice;
       this.$parent.transactions = invoice.transactions;
-      this.$modal.show();
+      this.$parent.$transactionsModal.show();
       this.$parent.modaltitle =
         invoice.description +
         " " +
