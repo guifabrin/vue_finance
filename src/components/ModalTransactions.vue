@@ -89,7 +89,7 @@ export default {
   },
   methods: {
     closeModal() {
-      this.$parent.$transactionsModal.hide();
+      this.$modal.hide();
     },
     formatMoney(value) {
       return this.$parent.formatMoney(value);
@@ -102,10 +102,10 @@ export default {
       this.$parent.$options.components.ModalTransaction.show();
     },
     deleteTransaction(transaction) {
-      if (!confirm("Tem certeza?")) {
+      const self = this;
+      if (!confirm(this.$t("transactions.confirmation_text", transaction))) {
         return;
       }
-      const self = this;
       fetch("http://localhost:8888/api/v1/transactions/" + transaction.id, {
         method: "DELETE",
         headers: this.$root.headers,
@@ -113,22 +113,8 @@ export default {
       })
         .then((response) => response.json())
         .then(() => {
+          self.closeModal();
           self.$root.login();
-          if (self.oldInvoice) {
-            self.$parent.viewTransactionsAt(
-              self.$parent.accounts
-                .filter((acc) => acc.id == self.oldAccount)[0]
-                .invoices.filter((inv) => inv.id == self.oldInvoice)[0]
-            );
-          } else {
-            self.$parent.viewTransactionsAt(
-              self.$parent.accounts.filter(
-                (acc) => acc.id == self.oldAccount
-              )[0],
-              self.oldYear,
-              self.oldMonth
-            );
-          }
         })
         .catch((ex) => {
           console.log("error", ex);

@@ -6,8 +6,8 @@ export default class Transaction {
             switch (key) {
                 case 'date':
                     {
-                    const [yyyy, mm, dd] = objJson[key].split('-')
-                    this[key] = new Date(yyyy, mm - 1, dd)
+                        const [yyyy, mm, dd] = objJson[key].split('-')
+                        this[key] = new Date(yyyy, mm - 1, dd)
                     }
                     break;
                 default:
@@ -15,5 +15,7 @@ export default class Transaction {
                     break;
             }
         }
+        this.acc_id = this.account.id
+        this.acc_description = this.account.description
     }
 }

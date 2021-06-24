@@ -203,10 +203,10 @@ export default {
       this.$parent.$options.components.ModalTransactions.show();
     },
     deleteAccount(account) {
-      if (!confirm("Tem certeza?")) {
+      const self = this;
+      if (!confirm(this.$t("accounts.confirmation_text", account))) {
         return;
       }
-      const self = this;
       fetch("http://localhost:8888/api/v1/accounts/" + account.id, {
         method: "delete",
         headers: this.$root.headers,

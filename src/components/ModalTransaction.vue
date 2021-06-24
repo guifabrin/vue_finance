@@ -118,7 +118,7 @@ export default {
   },
   methods: {
     closeModal() {
-      this.$parent.$transactionModal.hide();
+      this.$modal.hide();
       this.account = null;
       this.description = "";
       this.invoice_id = null;
@@ -146,8 +146,8 @@ export default {
       )
         .then((response) => response.json())
         .then(() => {
+          self.closeModal();
           self.$root.login();
-          self.$parent.$options.components.ModalTransaction.hide();
           self.$parent.$options.components.ModalTransactions.hide();
           self.description = "";
           self.invoice_id = null;
