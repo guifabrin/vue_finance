@@ -64,31 +64,32 @@
   </div>
 </template>
 <script>
+let self = "";
 export default {
   data() {
     return {
-      description: "",
-      is_credit_card: false,
+      description: this.account ? this.account.description : "",
+      is_credit_card: this.account ? this.account.is_credit_card : false,
       $modal: this.$parent.$accountModal,
+      account: null,
     };
   },
   computed: {
-    account() {
-      return this.$parent.account;
-    },
     modaltitle() {
       return "";
     },
   },
+  mounted() {
+    self = this;
+  },
   methods: {
     closeModal($modal) {
+      this.account = null;
+      this.is_credit_card = false;
+      this.description = "";
       $modal.hide();
     },
-    formatMoney(value) {
-      return this.$parent.formatMoney(value);
-    },
     addAccount() {
-      const self = this;
       fetch(
         "http://localhost:8888/api/v1/accounts/" +
           (this.account ? this.account.id : ""),
@@ -113,6 +114,11 @@ export default {
           console.log("error", ex);
         });
     },
+  },
+  accupdate(account) {
+    self.description = account ? account.description : "";
+    self.is_credit_card = account ? account.is_credit_card : false;
+    self.account = account;
   },
 };
 </script>

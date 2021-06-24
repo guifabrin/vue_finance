@@ -17,6 +17,9 @@ export default class Account {
                     for (const objInvoice of objJson['invoices'])
                         this.invoices.push(new Invoice(objInvoice, this))
                     break;
+                case 'is_credit_card':
+                    this[key] = Boolean(objJson[key])
+                    break;
                 default:
                     this[key] = objJson[key];
                     break;

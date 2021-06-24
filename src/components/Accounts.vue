@@ -1,8 +1,14 @@
 <template>
+  <button
+    v-on:click="addAccount()"
+    class="btn btn-primary"
+    style="float:right;"
+  >
+    <i class="fas fa-plus" />
+  </button>
   <ListYears />
   <TableAccounts />
   <ModalTransactions />
-  <button v-on:click="addAccount()"></button>
   <ModalAccount />
 </template>
 
@@ -12,13 +18,14 @@ import ListYears from "./ListYears.vue";
 import TableAccounts from "./TableAccounts.vue";
 import ModalTransactions from "./ModalTransactions.vue";
 import ModalAccount from "./ModalAccount.vue";
+const m = ModalAccount;
 export default {
   name: "Accounts",
   components: {
     ListYears,
     ModalTransactions,
     TableAccounts,
-    ModalAccount,
+    ModalAccount: m,
   },
   props: {
     accounts: [],
@@ -50,6 +57,7 @@ export default {
       return '<font class="' + classe + '">' + strValue + "</font>";
     },
     addAccount() {
+      this.$options.components.ModalAccount.accupdate();
       this.$accountModal.show();
     },
   },
