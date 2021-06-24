@@ -32,10 +32,12 @@
             >
               <i class="fa fa-sync"></i>
             </button>
+            <button class="btn btn-danger" v-on:click="deleteAccount(account)">
+              <i class="fa fa-trash"></i>
+            </button>
             <!-- <button class="btn btn-warning">
               <i class="fa fa-edit"></i>
             </button>
-            <button class="btn btn-danger"><i class="fa fa-trash"></i></button>
             <button class="btn btn-info"><i class="fa fa-upload"></i></button>
             <a class="btn btn-secondary" v-if="account.is_credit_card">
               <i class="fas fa-receipt"></i>
@@ -203,6 +205,23 @@ export default {
         "/" +
         invoice.debit_date.getUTCFullYear();
     },
+    deleteAccount(account) {
+      if (!confirm("Tem certeza?")) {
+        return;
+      }
+      const self = this;
+      fetch("http://localhost:8888/api/v1/accounts/" + account.id, {
+        method: "delete",
+        headers: this.$parent.headers,
+        mode: "cors",
+      })
+        .then(() => {
+          self.$parent.$parent.login();
+        })
+        .catch((ex) => {
+          console.log("error", ex);
+        });
+    },
     syncAccount(account, $event) {
       const self = this;
       let isafe = "";
@@ -220,7 +239,7 @@ export default {
         body: isafe,
       })
         .then(() => {
-          self.$parent.login();
+          self.$parent.$parent.login();
           $event.target.classList.remove("spin");
         })
         .catch((ex) => {
