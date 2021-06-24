@@ -1,15 +1,5 @@
 <template>
-  <ul class="nav nav-tabs">
-    <li class="nav-item" v-for="year in years()" :key="year">
-      <a
-        class="nav-link"
-        :class="actual.year == year ? 'active' : ''"
-        aria-current="page"
-        v-on:click="actual.year = year"
-        >{{ year }}</a
-      >
-    </li>
-  </ul>
+  <ListYears/>
   <div class="table-responsive">
     <table class="table table-sm table-bordered table-striped table-light">
       <thead>
@@ -215,8 +205,12 @@
 
 <script>
 import { Modal } from "bootstrap";
+import ListYears from './ListYears.vue'
 export default {
   name: "Accounts",
+  components:{
+    ListYears
+  },
   props: {
     accounts: [],
     headers: null,
@@ -242,23 +236,6 @@ export default {
   methods: {
     closeModal($modal) {
       $modal.hide();
-    },
-    years() {
-      const years = [];
-      const yearDiff = this.now.year - this.actual.year;
-      let j = 10 - yearDiff;
-      if (j <= 0) {
-        j = 1;
-      }
-      for (let i = this.actual.year - j; i <= this.actual.year; i++) {
-        years.push(i);
-      }
-      if (this.actual.year < this.now.year) {
-        for (let i = this.actual.year + 1; i <= this.now.year; i++) {
-          years.push(i);
-        }
-      }
-      return years;
     },
     sumPaid(month) {
       return this.accounts
