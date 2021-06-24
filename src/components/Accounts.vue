@@ -64,7 +64,7 @@ export default {
       return '<font class="' + classe + '">' + strValue + "</font>";
     },
     addAccount() {
-      this.$options.components.ModalAccount.accupdate();
+      this.$options.components.ModalAccount.setAccount();
       this.$accountModal.show();
     },
     addTransaction(account, transaction) {

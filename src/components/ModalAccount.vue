@@ -6,7 +6,7 @@
     role="dialog"
     aria-labelledby="accountsModalLabel"
   >
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <button
@@ -14,20 +14,20 @@
             class="btn btn-danger"
             data-dismiss="modal"
             aria-label="Close"
-            v-on:click="closeModal($modal)"
+            v-on:click="closeModal()"
           >
             <span aria-hidden="true">&times;</span>
           </button>
           <h4 class="modal-title" id="accountsModalLabel">
-            {{ modaltitle }}
+            {{ title }}
           </h4>
         </div>
         <div class="modal-body">
-          <form class="col-md-3">
+          <form class="col-md-12">
             <div class="mb-3">
-              <label for="inputDescription" class="form-label"
-                >Description</label
-              >
+              <label for="inputDescription" class="form-label">
+                {{ $t("common.description") }}
+              </label>
               <input
                 type="text"
                 class="form-control"
@@ -40,9 +40,10 @@
               </div>
             </div>
             <div class="mb-3">
-              <label for="inputCheckbox" class="form-label"
-                >Is Credit Card</label
-              >
+              <label for="inputCheckbox" class="form-label">
+                {{ $t("accounts.is_credit_card") }}
+              </label>
+              <br />
               <input
                 type="checkbox"
                 id="inputCheckbox"
@@ -51,11 +52,11 @@
             </div>
             <button
               type="button"
-              class="btn btn-primary"
-              v-on:click="addAccount"
+              class="btn btn-secondary"
+              v-on:click="saveAccount"
             >
-              <i class="fas fa-door-open" />
-              Login
+              <i class="fas fa-save" />
+              {{ $t("common.save") }}
             </button>
           </form>
         </div>
@@ -64,32 +65,27 @@
   </div>
 </template>
 <script>
-let self = "";
+let self = null;
 export default {
   data() {
     return {
-      description: this.account ? this.account.description : "",
-      is_credit_card: this.account ? this.account.is_credit_card : false,
-      $modal: this.$parent.$accountModal,
       account: null,
+      description: "",
+      is_credit_card: false,
+      title: "",
     };
-  },
-  computed: {
-    modaltitle() {
-      return "";
-    },
   },
   mounted() {
     self = this;
   },
   methods: {
-    closeModal($modal) {
+    closeModal() {
+      this.$parent.$accountModal.hide();
       this.account = null;
-      this.is_credit_card = false;
       this.description = "";
-      $modal.hide();
+      this.is_credit_card = false;
     },
-    addAccount() {
+    saveAccount() {
       fetch(
         "http://localhost:8888/api/v1/accounts/" +
           (this.account ? this.account.id : ""),
@@ -105,20 +101,26 @@ export default {
       )
         .then((response) => response.json())
         .then(() => {
-          self.$parent.$parent.login();
-          self.$parent.$accountModal.hide();
+          self.closeModal();
+          self.$root.login();
+          self.account = null;
           self.description = "";
-          self.is_credit_card = "";
+          self.is_credit_card = false;
         })
         .catch((ex) => {
           console.log("error", ex);
         });
     },
   },
-  accupdate(account) {
+  setAccount(account) {
+    self.account = account;
     self.description = account ? account.description : "";
     self.is_credit_card = account ? account.is_credit_card : false;
-    self.account = account;
+    self.title = account
+      ? `${self.$t("common.edit")} ${self.$t("accounts.account")} ${
+          account.id
+        }/${account.description}`
+      : `${self.$t("common.add")} ${self.$t("accounts.account")}`;
   },
 };
 </script>

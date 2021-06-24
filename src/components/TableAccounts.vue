@@ -254,7 +254,7 @@ export default {
         });
     },
     editAccount(account) {
-      this.$parent.$options.components.ModalAccount.accupdate(account);
+      this.$parent.$options.components.ModalAccount.setAccount(account);
       this.$parent.$accountModal.show();
     },
     addTransaction(account) {
