@@ -1,5 +1,5 @@
 <template>
-  <div :class="logged? 'container-fluid':'container'">
+  <div :class="logged ? 'container-fluid' : 'container'">
     <div class="row justify-content-md-center">
       <div class="col-md-3 text-center">
         <img
@@ -10,10 +10,7 @@
     </div>
     <div class="row" v-if="logged">
       <div class="col-12">
-        <Accounts
-          v-bind:accounts="accounts"
-          v-bind:headers="headers"
-        />
+        <Accounts v-bind:accounts="accounts" v-bind:headers="headers" />
       </div>
     </div>
     <div v-if="!logged">
@@ -53,10 +50,13 @@
       </div>
     </div>
   </div>
+  <loading v-model:active="isLoading" :is-full-page="true" />
 </template>
 
 <script>
 let base64 = require("base-64");
+import Loading from "vue-loading-overlay";
+import "vue-loading-overlay/dist/vue-loading.css";
 import Account from "./models/Account.js";
 import Accounts from "./components/Accounts.vue";
 
@@ -64,15 +64,17 @@ export default {
   name: "App",
   components: {
     Accounts,
+    Loading,
   },
   data: () => {
     return {
+      isLoading: false,
       logged: false,
       email: "",
       passsword: "",
       accounts: null,
       headers: null,
-      light: false
+      light: false,
     };
   },
   methods: {
@@ -80,6 +82,7 @@ export default {
       const auth = base64.encode(this.email + ":" + this.password);
       this.headers = new Headers();
       this.headers.append("Authorization", "Basic " + auth);
+      this.isLoading = true;
       fetch("http://localhost:8888/api/v1/accounts", {
         method: "GET",
         headers: this.headers,
@@ -98,10 +101,12 @@ export default {
             this.logged = true;
             window.location.hash = auth;
           }
+          this.isLoading = false;
         })
         .catch((ex) => {
           console.log("error", ex);
           this.logged = false;
+          this.isLoading = false;
         });
     },
   },
@@ -112,7 +117,7 @@ export default {
         .split(":");
       this.login();
     }
-  }
+  },
 };
 </script>
 

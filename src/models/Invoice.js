@@ -23,8 +23,8 @@ export default class Invoice {
     }
 
     get value() {
-        const invoices = this.account.invoices.sort((invoice, invoice1) => invoice1.debit_date-invoice.debit_date).filter(invoice => invoice.debit_date < this.debit_date)
+        const invoices = this.account.invoices.sort((invoice, invoice1) => invoice1.debit_date - invoice.debit_date).filter(invoice => invoice.debit_date < this.debit_date)
         const ii = invoices[0]
-        return this.transactions.map(item => item.value).reduce((a, b) => a + b, 0) + (ii?ii.value:0);
+        return this.transactions.map(item => item.value).reduce((a, b) => a + b, 0) + (ii ? ii.value : 0);
     }
 }
