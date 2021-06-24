@@ -35,9 +35,10 @@
             <button class="btn btn-danger" v-on:click="deleteAccount(account)">
               <i class="fa fa-trash"></i>
             </button>
-            <!-- <button class="btn btn-warning">
+            <button class="btn btn-warning" v-on:click="editAccount(account)">
               <i class="fa fa-edit"></i>
             </button>
+            <!-- 
             <button class="btn btn-info"><i class="fa fa-upload"></i></button>
             <a class="btn btn-secondary" v-if="account.is_credit_card">
               <i class="fas fa-receipt"></i>
@@ -245,6 +246,10 @@ export default {
         .catch((ex) => {
           console.log("error", ex);
         });
+    },
+    editAccount(account) {
+      this.$parent.account = account;
+      this.$parent.$accountModal.show();
     },
   },
 };

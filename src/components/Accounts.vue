@@ -2,6 +2,8 @@
   <ListYears />
   <TableAccounts />
   <ModalTransactions />
+  <button v-on:click="addAccount()"></button>
+  <ModalAccount />
 </template>
 
 <script>
@@ -9,12 +11,14 @@ import { Modal } from "bootstrap";
 import ListYears from "./ListYears.vue";
 import TableAccounts from "./TableAccounts.vue";
 import ModalTransactions from "./ModalTransactions.vue";
+import ModalAccount from "./ModalAccount.vue";
 export default {
   name: "Accounts",
   components: {
     ListYears,
     ModalTransactions,
     TableAccounts,
+    ModalAccount,
   },
   props: {
     accounts: [],
@@ -32,16 +36,21 @@ export default {
         year: new Date().getUTCFullYear(),
       },
       $modal: null,
+      $accountModal: null,
     };
   },
   mounted() {
     this.$modal = new Modal(document.getElementById("transactionsModal"));
+    this.$accountModal = new Modal(document.getElementById("accountsModal"));
   },
   methods: {
     formatMoney(value) {
       const strValue = this.$n(value, "currency");
       const classe = value < 0 ? "negative" : "positive";
       return '<font class="' + classe + '">' + strValue + "</font>";
+    },
+    addAccount() {
+      this.$accountModal.show();
     },
   },
 };
