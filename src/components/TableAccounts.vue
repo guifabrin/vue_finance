@@ -38,6 +38,9 @@
             <button class="btn btn-warning" v-on:click="editAccount(account)">
               <i class="fa fa-edit"></i>
             </button>
+            <button class="btn btn-info" v-on:click="addTransaction(account)">
+              <i class="fa fa-plus"></i>
+            </button>
             <!-- 
             <button class="btn btn-info"><i class="fa fa-upload"></i></button>
             <a class="btn btn-secondary" v-if="account.is_credit_card">
@@ -97,7 +100,7 @@
       </tbody>
       <tfoot>
         <tr>
-          <th>{{ $t("accounts.totals_paid") }}:</th>
+          <th colspan="2">{{ $t("accounts.totals_paid") }}:</th>
           <th
             :class="
               now.year == actual.year && month == actual.month
@@ -111,7 +114,7 @@
           ></th>
         </tr>
         <tr>
-          <th>{{ $t("accounts.totals_not_paid") }}:</th>
+          <th colspan="2">{{ $t("accounts.totals_not_paid") }}:</th>
           <th
             :class="
               now.year == actual.year && month == actual.month
@@ -125,7 +128,7 @@
           ></th>
         </tr>
         <tr>
-          <th>{{ $t("accounts.totals") }}:</th>
+          <th colspan="2">{{ $t("accounts.totals") }}:</th>
           <th
             :class="
               now.year == actual.year && month == actual.month
@@ -183,6 +186,7 @@ export default {
       this.oldYear = year;
       this.oldMonth = month;
       this.oldInvoice = null;
+      this.$parent.account = account;
       this.$parent.transactions = account
         .getTransactionsAt(year, month)
         .sort(function(a, b) {
@@ -197,6 +201,8 @@ export default {
       this.oldMonth = null;
       this.oldInvoice = invoice.id;
       this.oldAccount = invoice.account.id;
+      this.$parent.account = invoice.account;
+      this.$parent.invoice = invoice;
       this.$parent.transactions = invoice.transactions;
       this.$modal.show();
       this.$parent.modaltitle =
@@ -250,6 +256,9 @@ export default {
     editAccount(account) {
       this.$parent.$options.components.ModalAccount.accupdate(account);
       this.$parent.$accountModal.show();
+    },
+    addTransaction(account) {
+      this.$parent.addTransaction(account);
     },
   },
 };

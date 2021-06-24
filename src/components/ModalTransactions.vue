@@ -27,6 +27,7 @@
             class="table table-sm table-bordered table-striped table-light"
           >
             <thead>
+              <th>{{ $t("common.id") }}</th>
               <th>{{ $t("common.date") }}</th>
               <th>{{ $t("common.description") }}</th>
               <th>{{ $t("transactions.value") }}</th>
@@ -35,6 +36,7 @@
             </thead>
             <tbody>
               <tr v-for="transaction in transactions" :key="transaction.id">
+                <td>{{ transaction.id }}</td>
                 <td>{{ $d(transaction.date, "short") }}</td>
                 <td>{{ transaction.description }}</td>
                 <td v-html="formatMoney(transaction.value)"></td>
@@ -52,6 +54,12 @@
                     v-on:click="deleteTransaction(transaction)"
                   >
                     <i class="fa fa-trash"></i>
+                  </button>
+                  <button
+                    class="btn btn-warning"
+                    v-on:click="editTransaction(transaction)"
+                  >
+                    <i class="fa fa-edit"></i>
                   </button>
                 </td>
               </tr>
@@ -78,6 +86,9 @@ export default {
     },
     formatMoney(value) {
       return this.$parent.formatMoney(value);
+    },
+    editTransaction(transaction) {
+      this.$parent.addTransaction(this.$parent.account, transaction);
     },
     deleteTransaction(transaction) {
       if (!confirm("Tem certeza?")) {

@@ -10,6 +10,7 @@
   <TableAccounts />
   <ModalTransactions />
   <ModalAccount />
+  <ModalTransaction />
 </template>
 
 <script>
@@ -18,14 +19,15 @@ import ListYears from "./ListYears.vue";
 import TableAccounts from "./TableAccounts.vue";
 import ModalTransactions from "./ModalTransactions.vue";
 import ModalAccount from "./ModalAccount.vue";
-const m = ModalAccount;
+import ModalTransaction from "./ModalTransaction.vue";
 export default {
   name: "Accounts",
   components: {
     ListYears,
     ModalTransactions,
     TableAccounts,
-    ModalAccount: m,
+    ModalAccount,
+    ModalTransaction,
   },
   props: {
     accounts: [],
@@ -34,6 +36,7 @@ export default {
   data: () => {
     return {
       transactions: [],
+      transaction: null,
       modaltitle: "",
       actual: {
         year: new Date().getUTCFullYear(),
@@ -44,21 +47,32 @@ export default {
       },
       $modal: null,
       $accountModal: null,
+      $transactionModal: null,
     };
   },
   mounted() {
     this.$modal = new Modal(document.getElementById("transactionsModal"));
     this.$accountModal = new Modal(document.getElementById("accountsModal"));
+    this.$transactionModal = new Modal(
+      document.getElementById("transactionModal")
+    );
   },
   methods: {
     formatMoney(value) {
       const strValue = this.$n(value, "currency");
-      const classe = value < 0 ? "negative" : "positive";
+      const classe = Math.round(value) < 0 ? "negative" : "positive";
       return '<font class="' + classe + '">' + strValue + "</font>";
     },
     addAccount() {
       this.$options.components.ModalAccount.accupdate();
       this.$accountModal.show();
+    },
+    addTransaction(account, transaction) {
+      this.$options.components.ModalTransaction.acctransaction(
+        account,
+        transaction
+      );
+      this.$transactionModal.show();
     },
   },
 };
