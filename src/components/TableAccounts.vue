@@ -3,6 +3,7 @@
     <table class="table table-sm table-bordered table-striped table-light">
       <thead>
         <tr>
+          <th>{{ $t("common.id") }}</th>
           <th>{{ $t("common.description") }}</th>
           <th
             :class="
@@ -19,6 +20,9 @@
       </thead>
       <tbody>
         <tr v-for="account in accounts" :key="account.id">
+          <th>
+            {{ account.id }}
+          </th>
           <th>
             {{ account.description }}<br />
             <button
@@ -181,7 +185,7 @@ export default {
         .sort(function(a, b) {
           return a.date - b.date;
         });
-      this.modaltitle = account.description + " " + month + "/" + year;
+      this.$parent.modaltitle = account.description + " " + month + "/" + year;
       this.$modal.show();
     },
     viewTransactionsAtInvoice(invoice) {
@@ -192,7 +196,7 @@ export default {
       this.oldAccount = invoice.account.id;
       this.$parent.transactions = invoice.transactions;
       this.$modal.show();
-      this.modaltitle =
+      this.$parent.modaltitle =
         invoice.description +
         " " +
         invoice.debit_date.getUTCMonth() +

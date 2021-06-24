@@ -68,6 +68,9 @@ export default {
     transactions() {
       return this.$parent.transactions;
     },
+    modaltitle() {
+      return this.$parent.modaltitle;
+    },
   },
   methods: {
     closeModal($modal) {
