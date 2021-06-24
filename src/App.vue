@@ -10,7 +10,7 @@
     </div>
     <div class="row" v-if="logged">
       <div class="col-12">
-        <Accounts v-bind:accounts="accounts" v-bind:headers="headers" />
+        <Accounts v-bind:accounts="accounts" />
       </div>
     </div>
     <div v-if="!logged">

@@ -62,6 +62,7 @@
 </template>
 <script>
 let self = null;
+import { Modal } from "bootstrap";
 export default {
   data() {
     return {
@@ -69,14 +70,16 @@ export default {
       description: "",
       is_credit_card: false,
       title: "",
+      $modal: null,
     };
   },
   mounted() {
     self = this;
+    this.$modal = new Modal(document.getElementById("accountsModal"));
   },
   methods: {
     closeModal() {
-      this.$parent.$accountModal.hide();
+      this.$modal.hide();
       this.account = null;
       this.description = "";
       this.is_credit_card = false;
@@ -87,7 +90,7 @@ export default {
           (this.account ? this.account.id : ""),
         {
           method: this.account ? "PUT" : "POST",
-          headers: this.$parent.headers,
+          headers: this.$root.headers,
           mode: "cors",
           body: JSON.stringify({
             description: this.description,
@@ -117,6 +120,12 @@ export default {
           account.id
         }/${account.description}`
       : `${self.$t("common.add")} ${self.$t("accounts.account")}`;
+  },
+  hide() {
+    self.$modal.hide();
+  },
+  show() {
+    self.$modal.show();
   },
 };
 </script>

@@ -19,7 +19,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
           <h4 class="modal-title" id="transactionsModalLabel">
-            {{ modaltitle }}
+            {{ title }}
           </h4>
         </div>
         <div class="modal-body">
@@ -71,24 +71,35 @@
   </div>
 </template>
 <script>
+import Helpers from "../Helpers";
+import { Modal } from "bootstrap";
+let self = null;
 export default {
-  computed: {
-    transactions() {
-      return this.$parent.transactions;
-    },
-    modaltitle() {
-      return this.$parent.modaltitle;
-    },
+  data() {
+    return {
+      account: null,
+      transactions: [],
+      title: "",
+      $modal: null,
+    };
+  },
+  mounted() {
+    self = this;
+    this.$modal = new Modal(document.getElementById("transactionsModal"));
   },
   methods: {
-    closeModal($modal) {
-      $modal.hide();
+    closeModal() {
+      this.$parent.$transactionsModal.hide();
     },
     formatMoney(value) {
       return this.$parent.formatMoney(value);
     },
     editTransaction(transaction) {
-      this.$parent.addTransaction(this.$parent.account, transaction);
+      this.$parent.$options.components.ModalTransaction.setTransaction(
+        this.account,
+        transaction
+      );
+      this.$parent.$options.components.ModalTransaction.show();
     },
     deleteTransaction(transaction) {
       if (!confirm("Tem certeza?")) {
@@ -97,12 +108,12 @@ export default {
       const self = this;
       fetch("http://localhost:8888/api/v1/transactions/" + transaction.id, {
         method: "DELETE",
-        headers: this.$parent.headers,
+        headers: this.$root.headers,
         mode: "cors",
       })
         .then((response) => response.json())
         .then(() => {
-          self.$parent.$parent.login();
+          self.$root.login();
           if (self.oldInvoice) {
             self.$parent.viewTransactionsAt(
               self.$parent.accounts
@@ -127,18 +138,50 @@ export default {
       const self = this;
       fetch("http://localhost:8888/api/v1/transactions/" + transaction.id, {
         method: "PUT",
-        headers: this.$parent.headers,
+        headers: this.$root.headers,
         mode: "cors",
         body: JSON.stringify({ paid: $event.target.checked }),
       })
         .then((response) => response.json())
         .then(() => {
-          self.$parent.$parent.login();
+          self.$root.login();
         })
         .catch((ex) => {
           console.log("error", ex);
         });
     },
+  },
+  setAccount(account, year, month) {
+    self.account = account;
+    self.transactions = account
+      .getTransactionsAt(year, month)
+      .sort(function(a, b) {
+        return a.date - b.date;
+      });
+
+    const { dateInit, dateEnd } = Helpers.getPeriod(year, month);
+    self.title = `${self.$t("transactions.title")} - ${account.id}/${
+      account.description
+    }; ${self.$d(dateInit, "short")} - ${self.$d(dateEnd, "short")}`;
+  },
+  setInvoice(account, invoice) {
+    self.account = account;
+    self.invoice = invoice;
+    self.transactions = invoice.transactions.sort(function(a, b) {
+      return a.date - b.date;
+    });
+    self.title = `${self.$t("transactions.title")} - ${account.id}/${
+      account.description
+    } - ${invoice.id}/${invoice.description} - ${self.$d(
+      invoice.debit_date,
+      "short"
+    )}`;
+  },
+  hide() {
+    self.$modal.hide();
+  },
+  show() {
+    self.$modal.show();
   },
 };
 </script>

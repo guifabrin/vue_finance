@@ -85,7 +85,7 @@
             <button
               type="button"
               class="btn btn-secondary"
-              v-on:click="addTransaction"
+              v-on:click="saveTransaction"
             >
               <i class="fas fa-save" />
               {{ $t("common.save") }}
@@ -97,6 +97,7 @@
   </div>
 </template>
 <script>
+import { Modal } from "bootstrap";
 let self = null;
 export default {
   data() {
@@ -113,6 +114,7 @@ export default {
   },
   mounted() {
     self = this;
+    this.$modal = new Modal(document.getElementById("transactionModal"));
   },
   methods: {
     closeModal() {
@@ -124,13 +126,13 @@ export default {
       this.transaction = null;
       this.value = 0;
     },
-    addTransaction() {
+    saveTransaction() {
       fetch(
         "http://localhost:8888/api/v1/transactions/" +
           (this.transaction ? this.transaction.id : ""),
         {
           method: this.transaction ? "PUT" : "POST",
-          headers: this.$parent.headers,
+          headers: this.$root.headers,
           mode: "cors",
           body: JSON.stringify({
             account_id: this.account.id,
@@ -145,8 +147,8 @@ export default {
         .then((response) => response.json())
         .then(() => {
           self.$root.login();
-          self.$parent.$transactionsModal.hide();
-          self.$parent.$transactionModal.hide();
+          self.$parent.$options.components.ModalTransaction.hide();
+          self.$parent.$options.components.ModalTransactions.hide();
           self.description = "";
           self.invoice_id = null;
           self.paid = false;
@@ -178,6 +180,12 @@ export default {
       : `${self.$t("common.add")} ${self.$t("transactions.transaction")} - ${
           account.id
         }/${account.description}`;
+  },
+  hide() {
+    self.$modal.hide();
+  },
+  show() {
+    self.$modal.show();
   },
 };
 </script>

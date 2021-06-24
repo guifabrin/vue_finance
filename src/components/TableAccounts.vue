@@ -149,7 +149,7 @@
 export default {
   computed: {
     accounts() {
-      return this.$parent.accounts;
+      return this.$root.accounts;
     },
     now() {
       return this.$parent.now;
@@ -178,36 +178,29 @@ export default {
         .reduce((a, b) => a + b, 0);
     },
     viewTransactionsAt(account, year, month) {
-      this.$parent.$transactionsModal.hide();
+      this.$parent.$options.components.ModalTransaction.hide();
       this.oldAccount = account.id;
       this.oldYear = year;
       this.oldMonth = month;
       this.oldInvoice = null;
-      this.$parent.account = account;
-      this.$parent.transactions = account
-        .getTransactionsAt(year, month)
-        .sort(function(a, b) {
-          return a.date - b.date;
-        });
-      this.$parent.modaltitle = account.description + " " + month + "/" + year;
-      this.$parent.$transactionsModal.show();
+      this.$parent.$options.components.ModalTransactions.setAccount(
+        account,
+        year,
+        month
+      );
+      this.$parent.$options.components.ModalTransactions.show();
     },
     viewTransactionsAtInvoice(invoice) {
-      this.$parent.$transactionsModal.hide();
+      this.$parent.$options.components.ModalTransaction.hide();
       this.oldYear = null;
       this.oldMonth = null;
       this.oldInvoice = invoice.id;
       this.oldAccount = invoice.account.id;
-      this.$parent.account = invoice.account;
-      this.$parent.invoice = invoice;
-      this.$parent.transactions = invoice.transactions;
-      this.$parent.$transactionsModal.show();
-      this.$parent.modaltitle =
-        invoice.description +
-        " " +
-        invoice.debit_date.getUTCMonth() +
-        "/" +
-        invoice.debit_date.getUTCFullYear();
+      this.$parent.$options.components.ModalTransactions.setInvoice(
+        invoice.account,
+        invoice
+      );
+      this.$parent.$options.components.ModalTransactions.show();
     },
     deleteAccount(account) {
       if (!confirm("Tem certeza?")) {
@@ -216,7 +209,7 @@ export default {
       const self = this;
       fetch("http://localhost:8888/api/v1/accounts/" + account.id, {
         method: "delete",
-        headers: this.$parent.headers,
+        headers: this.$root.headers,
         mode: "cors",
       })
         .then(() => {
@@ -238,7 +231,7 @@ export default {
       $event.target.classList.add("spin");
       fetch("http://localhost:8888/api/v1/automated/" + account.id, {
         method: "POST",
-        headers: this.$parent.headers,
+        headers: this.$root.headers,
         mode: "cors",
         body: isafe,
       })
@@ -252,10 +245,11 @@ export default {
     },
     editAccount(account) {
       this.$parent.$options.components.ModalAccount.setAccount(account);
-      this.$parent.$accountModal.show();
+      this.$parent.$options.components.ModalAccount.show();
     },
     addTransaction(account) {
-      this.$parent.addTransaction(account);
+      this.$parent.$options.components.ModalTransaction.setTransaction(account);
+      this.$parent.$options.components.ModalTransaction.show();
     },
   },
 };
