@@ -67,6 +67,12 @@ export default {
 .positive {
   color: #0e4a0e;
 }
+body.dark .negative {
+  color: #f33c3c;
+}
+body.dark .positive {
+  color: #29a929;
+}
 @import url("https://use.fontawesome.com/releases/v5.0.13/css/all.css");
 
 table.table td {

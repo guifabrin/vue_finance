@@ -1,6 +1,9 @@
 <template>
   <div class="table-responsive">
-    <table class="table table-sm table-bordered table-striped table-light">
+    <table
+      class="table table-sm table-bordered table-striped"
+      :class="!$root.light ? 'table-light' : 'table-dark'"
+    >
       <thead>
         <tr>
           <th>{{ $t("common.id") }}</th>
@@ -38,7 +41,11 @@
             <button class="btn btn-warning" v-on:click="editAccount(account)">
               <i class="fa fa-edit"></i>
             </button>
-            <button class="btn btn-info" v-on:click="addTransaction(account)">
+            <button
+              class="btn btn-info"
+              v-on:click="addTransaction(account)"
+              v-if="!account.is_credit_card"
+            >
               <i class="fa fa-plus"></i>
             </button>
             <!-- 

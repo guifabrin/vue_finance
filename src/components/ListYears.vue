@@ -49,4 +49,8 @@ export default {
   },
 };
 </script>
-<style scoped></style>
+<style scoped>
+li {
+  cursor: pointer;
+}
+</style>

@@ -24,7 +24,8 @@
         </div>
         <div class="modal-body">
           <table
-            class="table table-sm table-bordered table-striped table-light"
+            class="table table-sm table-bordered table-striped"
+            :class="!$root.light ? 'table-light' : 'table-dark'"
           >
             <thead>
               <th>{{ $t("common.id") }}</th>
