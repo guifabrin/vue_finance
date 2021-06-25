@@ -12,6 +12,7 @@
   <ModalAccount />
   <ModalInvoices />
   <ModalTransaction />
+  <ModalInvoice />
 </template>
 
 <script>
@@ -21,6 +22,7 @@ import ModalTransactions from "./ModalTransactions.vue";
 import ModalAccount from "./ModalAccount.vue";
 import ModalTransaction from "./ModalTransaction.vue";
 import ModalInvoices from "./ModalInvoices.vue";
+import ModalInvoice from "./ModalInvoice.vue";
 const now = new Date();
 export default {
   name: "Accounts",
@@ -31,6 +33,7 @@ export default {
     ModalAccount,
     ModalTransaction,
     ModalInvoices,
+    ModalInvoice,
   },
   props: {
     accounts: [],

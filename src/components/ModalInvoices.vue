@@ -23,6 +23,13 @@
           </h4>
         </div>
         <div class="modal-body">
+          <button
+            class="btn btn-primary"
+            v-on:click="addInvoice()"
+            style="float: right;"
+          >
+            <i class="fa fa-plus"></i>
+          </button>
           <table
             class="table table-sm table-bordered table-striped"
             :class="!$root.light ? 'table-light' : 'table-dark'"
@@ -95,19 +102,23 @@ export default {
     formatMoney(value) {
       return this.$parent.formatMoney(value);
     },
-    editInvoice() {
-      /*this.$parent.$options.components.ModalTransaction.setTransaction(
+    editInvoice(invoice) {
+      this.$parent.$options.components.ModalInvoice.setInvoice(
         this.account,
-        transaction
+        invoice
       );
-      this.$parent.$options.components.ModalTransaction.show();*/
+      this.$parent.$options.components.ModalInvoice.show();
     },
-    deleteInvoice() {
-      /*const self = this;
-      if (!confirm(this.$t("transactions.confirmation_text", transaction))) {
+    addInvoice() {
+      this.$parent.$options.components.ModalInvoice.setInvoice(this.account);
+      this.$parent.$options.components.ModalInvoice.show();
+    },
+    deleteInvoice(invoice) {
+      const self = this;
+      if (!confirm(this.$t("invoices.confirmation_text", invoice))) {
         return;
       }
-      fetch("http://localhost:8888/api/v1/transactions/" + transaction.id, {
+      fetch("http://localhost:8888/api/v1/invoices/" + invoice.id, {
         method: "DELETE",
         headers: this.$root.headers,
         mode: "cors",
@@ -119,7 +130,7 @@ export default {
         })
         .catch((ex) => {
           console.log("error", ex);
-        });*/
+        });
     },
     addTransaction(invoice) {
       this.$parent.$options.components.ModalTransaction.setTransaction(

@@ -6,7 +6,7 @@
     role="dialog"
     aria-labelledby="transactionModalLabel"
   >
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <button

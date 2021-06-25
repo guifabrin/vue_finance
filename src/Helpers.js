@@ -9,5 +9,10 @@ export default {
         const dateInit = new Date(year, month, 1, 0, 0, 0);
         const dateEnd = new Date(endYear, endMonth + 1, 1, 0, 0, 0);
         return { dateEnd, dateInit }
+    },
+    padZeroLeft(num, size = 2) {
+        num = num.toString();
+        while (num.length < size) num = "0" + num;
+        return num;
     }
 }
