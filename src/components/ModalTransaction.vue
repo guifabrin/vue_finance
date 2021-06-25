@@ -80,7 +80,12 @@
                 {{ $t("transactions.paid") }}
               </label>
               <br />
-              <input type="checkbox" id="inputCheckbox" v-model="paid" />
+              <input
+                type="checkbox"
+                id="inputCheckbox"
+                v-model="paid"
+                :disabled="paidDisabled"
+              />
             </div>
             <button
               type="button"
@@ -106,6 +111,7 @@ export default {
       description: "",
       invoice_id: null,
       paid: false,
+      paidDisabled: false,
       str_date: null,
       title: "",
       transaction: null,
@@ -125,6 +131,7 @@ export default {
       this.paid = false;
       this.transaction = null;
       this.value = 0;
+      this.paidDisabled = false;
     },
     saveTransaction() {
       fetch(
@@ -152,6 +159,7 @@ export default {
           self.description = "";
           self.invoice_id = null;
           self.paid = false;
+          self.paidDisabled = false;
           self.str_date = new Date();
           self.transaction = null;
           self.value = 0;
@@ -161,25 +169,42 @@ export default {
         });
     },
   },
-  setTransaction(account, transaction) {
+  setTransaction(account, invoice = null, transaction) {
     const date = transaction ? transaction.date : new Date();
     const int_month = date.getMonth();
     const month = (int_month > 9 ? "" : "0") + (int_month + 1);
     self.account = account;
     self.description = transaction ? transaction.description : "";
-    self.invoice_id =
-      transaction && transaction.invoice ? transaction.invoice.id : null;
-    self.paid = transaction ? (transaction.paid == 1 ? true : false) : false;
+    const iinvoice =
+      transaction && transaction.invoice ? transaction.invoice : invoice;
+    if (iinvoice) {
+      self.invoice_id = iinvoice.id;
+      self.paid = true;
+      self.paidDisabled = true;
+      self.title = transaction
+        ? `${self.$t("common.edit")} ${self.$t("transactions.transaction")} ${
+            transaction.id
+          }/${transaction.description} - ${account.id}/${
+            account.description
+          } - ${iinvoice.id}/${iinvoice.description}`
+        : `${self.$t("common.add")} ${self.$t("transactions.transaction")} - ${
+            account.id
+          }/${account.description} - ${iinvoice.id}/${iinvoice.description}`;
+    } else {
+      self.invoice_id = null;
+      self.paid = transaction ? (transaction.paid == 1 ? true : false) : false;
+      self.paidDisabled = false;
+      self.title = transaction
+        ? `${self.$t("common.edit")} ${self.$t("transactions.transaction")} ${
+            transaction.id
+          }/${transaction.description} - ${account.id}/${account.description}`
+        : `${self.$t("common.add")} ${self.$t("transactions.transaction")} - ${
+            account.id
+          }/${account.description}`;
+    }
     self.str_date = date.getFullYear() + "-" + month + "-" + date.getDate();
     self.transaction = transaction;
     self.value = transaction ? transaction.value : 0;
-    self.title = transaction
-      ? `${self.$t("common.edit")} ${self.$t("transactions.transaction")} ${
-          transaction.id
-        }/${transaction.description} - ${account.id}/${account.description}`
-      : `${self.$t("common.add")} ${self.$t("transactions.transaction")} - ${
-          account.id
-        }/${account.description}`;
   },
   hide() {
     self.$modal.hide();

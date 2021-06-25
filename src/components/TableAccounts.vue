@@ -50,9 +50,14 @@
             </button>
             <!-- 
             <button class="btn btn-info"><i class="fa fa-upload"></i></button>
-            <a class="btn btn-secondary" v-if="account.is_credit_card">
+             -->
+            <a
+              class="btn btn-secondary"
+              v-if="account.is_credit_card"
+              v-on:click="showInvoices(account)"
+            >
               <i class="fas fa-receipt"></i>
-            </a> -->
+            </a>
           </th>
           <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-confusing-v-for-v-if -->
           <td
@@ -257,6 +262,10 @@ export default {
     addTransaction(account) {
       this.$parent.$options.components.ModalTransaction.setTransaction(account);
       this.$parent.$options.components.ModalTransaction.show();
+    },
+    showInvoices(account) {
+      this.$parent.$options.components.ModalInvoices.setAccount(account);
+      this.$parent.$options.components.ModalInvoices.show();
     },
   },
 };

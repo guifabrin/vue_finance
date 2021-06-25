@@ -98,6 +98,7 @@ export default {
     editTransaction(transaction) {
       this.$parent.$options.components.ModalTransaction.setTransaction(
         this.account,
+        transaction.invoice,
         transaction
       );
       this.$parent.$options.components.ModalTransaction.show();

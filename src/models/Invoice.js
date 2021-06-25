@@ -6,6 +6,8 @@ export default class Invoice {
         for (const key in objJson) {
             switch (key) {
                 case 'debit_date':
+                case 'date_init':
+                case 'date_end':
                     {
                         const [yyyy, mm, dd] = objJson[key].split('-')
                         this[key] = new Date(yyyy, mm - 1, dd)
@@ -20,6 +22,7 @@ export default class Invoice {
                     break;
             }
         }
+        console.log(this)
     }
 
     get value() {
