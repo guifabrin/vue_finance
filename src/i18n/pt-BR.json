@@ -1,6 +1,11 @@
 {
     "messages": {
         "pt": {
+            "app": {
+                "name": "Illuminati",
+                "dark": "Escurecer",
+                "light": "Clarear"
+            },
             "accounts": {
                 "title": "Contas",
                 "account": "conta",

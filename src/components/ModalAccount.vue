@@ -7,7 +7,10 @@
     aria-labelledby="accountsModalLabel"
   >
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
+      <div
+        class="modal-content"
+        :class="!$root.light ? 'bg-light' : 'bg-dark text-light'"
+      >
         <div class="modal-header">
           <button
             type="button"
@@ -101,7 +104,7 @@ export default {
         .then((response) => response.json())
         .then(() => {
           self.closeModal();
-          self.$root.login();
+          self.$root.fetchAcc();
           self.account = null;
           self.description = "";
           self.is_credit_card = false;

@@ -7,7 +7,10 @@
     aria-labelledby="transactionsModalLabel"
   >
     <div class="modal-dialog modal-xl" role="document">
-      <div class="modal-content">
+      <div
+        class="modal-content"
+        :class="!$root.light ? 'bg-light' : 'bg-dark text-light'"
+      >
         <div class="modal-header">
           <button
             type="button"
@@ -116,7 +119,7 @@ export default {
         .then((response) => response.json())
         .then(() => {
           self.closeModal();
-          self.$root.login();
+          self.$root.fetchAcc();
         })
         .catch((ex) => {
           console.log("error", ex);
@@ -132,7 +135,7 @@ export default {
       })
         .then((response) => response.json())
         .then(() => {
-          self.$root.login();
+          self.$root.fetchAcc();
         })
         .catch((ex) => {
           console.log("error", ex);

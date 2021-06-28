@@ -225,7 +225,7 @@ export default {
         mode: "cors",
       })
         .then(() => {
-          self.$parent.$parent.login();
+          self.$root.fetchAcc();
         })
         .catch((ex) => {
           console.log("error", ex);
@@ -248,7 +248,7 @@ export default {
         body: isafe,
       })
         .then(() => {
-          self.$parent.$parent.login();
+          self.$root.fetchAcc();
           $event.target.classList.remove("spin");
         })
         .catch((ex) => {

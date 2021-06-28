@@ -1,18 +1,37 @@
 <template>
-  <div :class="logged ? 'container-fluid' : 'container'">
-    <div class="row justify-content-md-center">
-      <div class="col-md-3 text-center">
-        <button v-on:click="light = !light" class="btn btn-link">
-          <img
-            src="https://img.icons8.com/color/480/illuminati-symbol.png"
-            class="logo"
-          />
-        </button>
+  <header
+    class="navbar sticky-top flex-md-nowrap shadow"
+    :class="light ? 'bg-dark navbar-dark' : 'bg-light navbar-light'"
+  >
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">{{
+      $t("app.name")
+    }}</a>
+    <button
+      class="navbar-toggler position-absolute d-md-none collapsed"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#sidebarMenu"
+      aria-controls="sidebarMenu"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="navbar-nav">
+      <div class="nav-item text-nowrap">
+        <a class="nav-link px-3" href="#">{{
+          user ? user.name : $t("login.login")
+        }}</a>
       </div>
     </div>
+  </header>
+  <div :class="logged ? 'container-fluid' : 'container'">
     <div class="row" v-if="logged">
-      <div class="col-12">
-        <Accounts v-bind:accounts="accounts" />
+      <Sidebar />
+      <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <br />
+        <Accounts v-bind:accounts="accounts" v-if="page == 'accounts'" />
+        <Charts v-bind:accounts="accounts" v-if="page == 'charts'" />
       </div>
     </div>
     <div v-if="!logged">
@@ -61,12 +80,16 @@ import Loading from "vue-loading-overlay";
 import "vue-loading-overlay/dist/vue-loading.css";
 import Account from "./models/Account.js";
 import Accounts from "./components/Accounts.vue";
+import Charts from "./components/Charts.vue";
+import Sidebar from "./components/Sidebar.vue";
 
 export default {
   name: "App",
   components: {
     Accounts,
+    Charts,
     Loading,
+    Sidebar,
   },
   data: () => {
     return {
@@ -77,13 +100,12 @@ export default {
       accounts: null,
       headers: null,
       light: false,
+      user: null,
+      page: "accounts",
     };
   },
   methods: {
-    login: function() {
-      const auth = base64.encode(this.email + ":" + this.password);
-      this.headers = new Headers();
-      this.headers.append("Authorization", "Basic " + auth);
+    fetchAcc: function() {
       this.isLoading = true;
       fetch("http://localhost:8888/api/v1/accounts", {
         method: "GET",
@@ -94,14 +116,12 @@ export default {
         .then((json) => {
           if (json.message) {
             console.log("error");
-            this.logged = false;
           } else {
+            this.logged = true;
             this.accounts = [];
             for (const objJson of json) {
               this.accounts.push(new Account(objJson));
             }
-            this.logged = true;
-            window.location.hash = auth;
           }
           this.isLoading = false;
         })
@@ -111,14 +131,36 @@ export default {
           this.isLoading = false;
         });
     },
-  },
-  mounted() {
-    if (window.location.hash) {
-      [this.email, this.password] = base64
-        .decode(window.location.hash.substring(1))
-        .split(":");
-      this.login();
-    }
+    fetchUser: function() {
+      this.isLoading = true;
+      fetch("http://localhost:8888/api/v1/users/" + this.email, {
+        method: "GET",
+        headers: this.headers,
+        mode: "cors",
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.message) {
+            console.log("error");
+            this.logged = false;
+          } else {
+            this.user = json;
+            this.isLoading = false;
+            this.fetchAcc();
+          }
+        })
+        .catch((ex) => {
+          console.log("error", ex);
+          this.logged = false;
+          this.isLoading = false;
+        });
+    },
+    login: function() {
+      const auth = base64.encode(this.email + ":" + this.password);
+      this.headers = new Headers();
+      this.headers.append("Authorization", "Basic " + auth);
+      this.fetchUser();
+    },
   },
   watch: {
     light(old, newer) {
