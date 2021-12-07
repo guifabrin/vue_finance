@@ -6,5 +6,8 @@
       "automergeType": "branch",
       "description": "Automatically merge minor and patch-level updates",
     }
+  ],
+  "schedule": [
+    "before 2am"
   ]
 }
