@@ -2,7 +2,9 @@
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true
+      "automerge": true,
+      "automergeType": "branch",
+      "description": "Automatically merge minor and patch-level updates",
     }
   ]
 }
